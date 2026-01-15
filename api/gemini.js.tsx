@@ -1,3 +1,11 @@
+type Part = {
+  text?: string;
+  inlineData?: {
+    mimeType: string;
+    data: string;
+  };
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "POST only" });
@@ -14,7 +22,7 @@ export default async function handler(req, res) {
 اشرح حسب المقرر المغربي وبأسلوب مبسط.
 `;
 
-    const parts = [{ text: systemPrompt + "\n\n" + message }];
+    const parts: Part[] = [{ text: systemPrompt + "\n\n" + message }];
 
     if (imageBase64) {
       parts.push({
@@ -41,8 +49,7 @@ export default async function handler(req, res) {
 
     res.status(200).json({
       reply:
-        data.candidates?.[0]?.content?.parts?.[0]?.text ||
-        "لا يوجد رد",
+        data.candidates?.[0]?.content?.parts?.[0]?.text || "لا يوجد رد",
     });
   } catch (e) {
     res.status(500).json({ error: e.message });
