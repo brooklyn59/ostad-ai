@@ -1,28 +1,12 @@
-import { EducationState, FileData } from "../types";
+import React from 'react';
 
-export const generateResponse = async (
-  prompt: string,
-  education: EducationState,
-  file?: FileData
-): Promise<string> => {
-  const response = await fetch("/api/gemini", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      message: prompt,
-      level: education.level,
-      track: education.track,
-      subject: education.subject,
-      imageBase64: file?.base64 || null,
-    }),
-  });
+function App() {
+  return (
+    <div>
+      <h1>أستاذي الذكي</h1>
+      <p>جرب إرسال سؤال للذكاء الاصطناعي!</p>
+    </div>
+  );
+}
 
-  if (!response.ok) {
-    throw new Error("فشل الاتصال بالذكاء الاصطناعي");
-  }
-
-  const data = await response.json();
-  return data.reply;
-};
+export default App;
