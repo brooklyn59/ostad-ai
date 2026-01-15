@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { generateResponse } from './services/geminiService';
 import { EducationState } from './types';
 
