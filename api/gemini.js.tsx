@@ -1,9 +1,5 @@
 type Part = {
-  text?: string;
-  inlineData?: {
-    mimeType: string;
-    data: string;
-  };
+  text: string;
 };
 
 export default async function handler(req, res) {
@@ -12,7 +8,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, level, track, subject, imageBase64 } = req.body;
+    const { message, level, track, subject } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
 
     const systemPrompt = `
 أنت أستاذ مغربي خبير.
@@ -22,36 +22,45 @@ export default async function handler(req, res) {
 اشرح حسب المقرر المغربي وبأسلوب مبسط.
 `;
 
-    const parts: Part[] = [{ text: systemPrompt + "\n\n" + message }];
-
-    if (imageBase64) {
-      parts.push({
-        inlineData: {
-          mimeType: "image/png",
-          data: imageBase64,
-        },
-      });
-    }
+    const parts: Part[] = [
+      { text: systemPrompt + "\n\n" + message }
+    ];
 
     const response = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" +
         process.env.GEMINI_API_KEY,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          contents: [{ role: "user", parts }],
+          contents: [
+            {
+              role: "user",
+              parts,
+            },
+          ],
         }),
       }
     );
+
+    if (!response.ok) {
+      const errText = await response.text();
+      return res.status(500).json({ error: errText });
+    }
 
     const data = await response.json();
 
     res.status(200).json({
       reply:
-        data.candidates?.[0]?.content?.parts?.[0]?.text || "لا يوجد رد",
+        data?.candidates?.[0]?.content?.parts?.[0]?.text ??
+        "لم يتم الحصول على رد",
     });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({
+      error: "Server error",
+      details: e.message,
+    });
   }
 }
