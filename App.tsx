@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
-import React, { useState } from 'react';
-import { generateResponse } from './services/geminiService';
-import { EducationState } from './types';
+import React, { useState } from "react";
+import { generateResponse } from "./services/geminiService";
+import { EducationState } from "./types";
 
-const educationSample: EducationState = {
+const education: EducationState = {
   level: "الثانوية",
   track: "علوم",
-  subject: "رياضيات"
+  subject: "رياضيات",
 };
 
 function App() {
@@ -14,38 +13,38 @@ function App() {
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSend = async () => {
+  const send = async () => {
     if (!question) return;
     setLoading(true);
     try {
-      const reply = await generateResponse(question, educationSample);
-      setAnswer(reply);
-    } catch (err) {
+      const res = await generateResponse(question, education);
+      setAnswer(res);
+    } catch {
       setAnswer("حدث خطأ أثناء الاتصال بالذكاء الاصطناعي");
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   };
 
   return (
     <div style={{ padding: 20 }}>
       <h1>أستاذي الذكي</h1>
-      <p>جرب إرسال سؤال للذكاء الاصطناعي!</p>
 
       <input
-        type="text"
         value={question}
         onChange={(e) => setQuestion(e.target.value)}
         placeholder="اكتب سؤالك هنا"
-        style={{ width: "300px", marginRight: "10px" }}
+        style={{ width: 300 }}
       />
-      <button onClick={handleSend} disabled={loading}>
-        {loading ? "جارٍ الإرسال..." : "إرسال"}
+
+      <button onClick={send} style={{ marginLeft: 10 }}>
+        إرسال
       </button>
 
+      {loading && <p>جارٍ التفكير...</p>}
+
       {answer && (
-        <div style={{ marginTop: 20, border: "1px solid #ccc", padding: 10 }}>
-          <strong>الرد:</strong>
+        <div style={{ marginTop: 20 }}>
+          <strong>الجواب:</strong>
           <p>{answer}</p>
         </div>
       )}
